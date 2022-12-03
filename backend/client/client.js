@@ -1,0 +1,52 @@
+const public_vapid_key =
+  "BLb1LdwgP5B8O5YFANmGxNyVUaArrx0bRcFGWjcnw6BM7lIVYuYg7uwht9eoKurNjGrT8sr0vV8ifsIyE3WEpC0";
+
+// check for service workers
+
+if ("serviceWorker" in navigator) {
+  send().catch((err) => console.error(err));
+}
+// register sw ,register push, send push
+
+async function send() {
+  console.log("registering service worker...");
+  const register = await navigator.serviceWorker.register("./worker.js", {
+    scope: "http://localhost:8000/",
+  });
+  console.log("Servoce worker regitsred .........");
+  // register push
+
+  console.log("Registering push.....");
+  const subscription = await register.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: public_vapid_key, // urlBase64ToUint8Array(public_vapid_key),
+  });
+  console.log("Push registerd...", subscription);
+  // send push Notification
+
+  console.log("sending push...");
+  // Send Push Notification
+  console.log("Sending Push...");
+  await fetch("/subscribe", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(subscription),
+  });
+  console.log("Push Sent...");
+}
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding)
+    .replace(/\-/g, "+")
+    .replace(/_/g, "/");
+
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+}
