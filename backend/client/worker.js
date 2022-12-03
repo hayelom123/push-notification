@@ -8,8 +8,10 @@ self.addEventListener("push", function (event) {
   console.log("====================================");
   const data = event.data.json();
   console.log("Push recived ...", data);
-  self.registration.showNotification(data.title, {
-    body: "Notified by hayelom kiros",
-    icon: "https://avatars.githubusercontent.com/u/70315287?v=4",
-  });
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: "https://avatars.githubusercontent.com/u/70315287?v=4",
+    })
+  );
 });

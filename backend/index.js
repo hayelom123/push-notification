@@ -16,7 +16,28 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, "client")));
 app.use(express.json());
-
+let mysubscriptions = [
+  //chrome
+  {
+    endpoint:
+      "https://fcm.googleapis.com/fcm/send/fq9RVxe_2j0:APA91bH-9EgxW9xdZlGqfAHbmm3ZXDiz2d9TS_Ofda22SLr8EWMdZKsSSWSB4zTdY_PPFr8dnQH-_OM0mec_MVr7xuxXPP_j_HAx8_tfMdaHhrJB8aEVQQaGFXutQxEa5pQLjFFOzibk",
+    expirationTime: null,
+    keys: {
+      p256dh:
+        "BLKFOhAAOCqc5_QxIZfl5NwaPFhKmGJXwrStKbdE-LSR02Yqo-jLDOqXIaqvgIWHJs7vCum2g4grrT50J2L-sIo",
+      auth: "7OMQxeFSqjwsyjQfkrm-Dg",
+    },
+  }, //safari
+  {
+    endpoint:
+      "https://web.push.apple.com/QE7sNE3XEef68-u2CEdkWpLT1qS8Iv8ugN7M95HJoFAwlgoCbVhV_qlQPmZT-c9kE9Tir6qc5nybj3bpAkeFXyEySLvE8AiKBh-lb_m6NZyBmpLFyEzzTyLhHM8H0RjpidNVjJ5Ur7xr5AgJ_ooe9PLIqL28mS1-2iwLW5rdE5Q",
+    keys: {
+      p256dh:
+        "BGvj_XhC6iCt7cqaVhvbC_sxlF9hSgbKz1V0beqefQRrYG0qRSj-ZcoNHN8e7g4ec9bsG7oQfBqHcR4X3O-uvY8",
+      auth: "26PCFc-v-Px7837kFKFUWQ",
+    },
+  },
+];
 // app.get("/", async (req, res) => {
 //   res.send("hello sir it is working!");
 // });
@@ -36,7 +57,16 @@ app.post("/subscribe", async (req, res) => {
   });
   webpush
     .sendNotification(subscripetion, payload)
-    .then((data) => console.log(data))
     .catch((err) => console.error(err));
+});
+app.get("/push", async (req, res) => {
+  res.send("<h1>sent</h1>");
+  const payload = JSON.stringify({
+    title: "Hayelom sending notification",
+    body: "Yes, it works!",
+  });
+  mysubscriptions.forEach((sub) => {
+    webpush.sendNotification(sub, payload).catch((err) => console.error(err));
+  });
 });
 app.listen(8000, () => console.log("app is listening on port 8000"));

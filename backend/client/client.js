@@ -3,9 +3,34 @@ const public_vapid_key =
 
 // check for service workers
 
-if ("serviceWorker" in navigator) {
-  send().catch((err) => console.error(err));
+function askPermission() {
+  return new Promise(function (resolve, reject) {
+    const permissionResult = Notification.requestPermission(function (result) {
+      resolve(result);
+    });
+
+    if (permissionResult) {
+      permissionResult.then(resolve, reject);
+    }
+  }).then(function (permissionResult) {
+    if (permissionResult !== "granted") {
+      throw new Error("We weren't granted permission.");
+    }
+  });
 }
+async function start() {
+  await askPermission();
+  if ("serviceWorker" in navigator) {
+    send().catch((err) => console.error(err));
+  }
+
+  if (!("PushManager" in window)) {
+    console.log("Push isn't supported on this browser, disable or hide UI");
+    // Push isn't supported on this browser, disable or hide UI.
+    // return;
+  }
+}
+
 // register sw ,register push, send push
 
 async function send() {
